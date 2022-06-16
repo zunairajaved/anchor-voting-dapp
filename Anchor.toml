@@ -1,13 +1,13 @@
 [features]
-seeds = false
-[programs.localnet]
-voting_dapp = "2MPX34tvksVP1x9QvNDAw7Z6tupYpzZ4mdG28tZ8aXeC"
+seeds = true #set to true to enable automatic PDA derivation in TS builder API
+[programs.devnet]
+voting_dapp = "AoiWJZFUbBksdydYiX6N7tUDWojYZupRyWtZGVd7rF4E"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/zunairajaved/.config/solana/id.json"
 
 [scripts]

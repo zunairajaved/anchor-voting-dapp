@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program::{invoke};
 use anchor_lang::solana_program::system_instruction::{transfer};
 
-declare_id!("2MPX34tvksVP1x9QvNDAw7Z6tupYpzZ4mdG28tZ8aXeC");
+declare_id!("AoiWJZFUbBksdydYiX6N7tUDWojYZupRyWtZGVd7rF4E");
 
 #[program]
 pub mod voting_dapp {
@@ -15,6 +15,7 @@ pub mod voting_dapp {
         msg!("Votes Counter Initialized");
         Ok(())
     }
+
     pub fn vote(ctx: Context<Vote>, vote: VoteOptions) -> Result<()> {
         let votes_counter = &mut ctx.accounts.votes_counter;
         match vote {
@@ -25,28 +26,26 @@ pub mod voting_dapp {
         user_vote.bump = *ctx.bumps.get("user_vote").unwrap();
         user_vote.vote = vote;
 
-        let voting_fee = 2016120; // Fee in lamports
-    
-    let voting_fee_transfer = transfer(
-        &ctx.accounts.user.key(), // From account
-        &votes_counter.key(), // To account
-        voting_fee, 
-    );
-    
-    // Need to call the system program 
-    // to transfer funds from accounts not owned by the program
-    invoke(
-        &voting_fee_transfer, 
-        &[
-            ctx.accounts.user.to_account_info(),
-            votes_counter.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-    )?;
+        let voting_fee = 2016120;
+        let voting_fee_transfer = transfer(
+            &ctx.accounts.user.key(),
+            &votes_counter.key(),
+            voting_fee,
+        );
+        invoke(
+            &voting_fee_transfer,
+            &[
+                ctx.accounts.user.to_account_info(),
+                votes_counter.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+        )?;
         Ok(())
     }
 }
 
+
+// Instructions Validations
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
@@ -54,12 +53,12 @@ pub struct Initialize<'info> {
     #[account(
         init,
         payer = user,
-        space = 32+32+32, // 8 internal + 2 * space(u64)
+        space = 8 + 2*8, // 8 internal + 2 * space(u64)
         seeds = [b"votes_counter".as_ref()],
         bump
     )]
     votes_counter: Account<'info, VotesCounter>,
-    pub system_program: Program<'info, System>,
+    system_program: Program <'info, System>,
 }
 
 #[derive(Accounts)]
@@ -80,7 +79,7 @@ pub struct Vote<'info> {
     pub system_program: Program <'info, System>,
 }
 
-
+// Data storage
 #[account]
 pub struct VotesCounter {
     pub team_a: u64,
@@ -92,7 +91,6 @@ pub struct UserVote {
     bump: u8,
     vote: VoteOptions
 }
-
 // Custom types
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
 pub enum VoteOptions {
